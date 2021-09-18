@@ -1,5 +1,5 @@
 public with sharing class TerritoryTriggerHandle {
-    public static void territoryHandle(
+    public static void accOwnerLimitHandle(
         List<Territory__c> terrRecords,
         Boolean isUpdate
     ) {
@@ -36,26 +36,28 @@ public with sharing class TerritoryTriggerHandle {
                 );
 
                 List<String> accOwnerIdList = new List<String>();
-                for (Territory__c terr : terrList) {
-                    accOwnerIdList.add(terr.Account_Owner__c);
-                }
+                if (terrList != null) {
+                    for (Territory__c terr : terrList) {
+                        accOwnerIdList.add(terr.Account_Owner__c);
+                    }
 
-                System.debug(terrList);
-                if (terrList.size() > 3 && isUpdate) {
-                    terrRecord.addError(
-                        'This zip code already have 3 account owner'
-                    );
-                    terrRecord.Account_Owner__c.addError(
-                        'This zip code already have 3 account owner'
-                    );
-                }
-                if (terrList.size() >= 3 && !isUpdate) {
-                    terrRecord.addError(
-                        'This zip code already have 3 account owner'
-                    );
-                    terrRecord.Account_Owner__c.addError(
-                        'This zip code already have 3 account owner'
-                    );
+                    System.debug(terrList);
+                    if (terrList.size() > 3 && isUpdate) {
+                        terrRecord.addError(
+                            'This zip code already have 3 account owner'
+                        );
+                        terrRecord.Account_Owner__c.addError(
+                            'This zip code already have 3 account owner'
+                        );
+                    }
+                    if (terrList.size() >= 3 && !isUpdate) {
+                        terrRecord.addError(
+                            'This zip code already have 3 account owner'
+                        );
+                        terrRecord.Account_Owner__c.addError(
+                            'This zip code already have 3 account owner'
+                        );
+                    }
                 }
             }
         }
@@ -119,7 +121,8 @@ public with sharing class TerritoryTriggerHandle {
         List<Account> accToUpdate = new List<Account>();
         for (Territory__c newRecord : newRecords) {
             //根据zipcode和ownerid找到关联的accList
-            System.debug(newRecord.Account_Owner__c);
+            System.debug('新ownerid' + newRecord.Account_Owner__c);
+            System.debug('新owner名' + newRecord.Account_Owner__r.Name);
             Territory__c oldTerr = oldRecordMap.get(newRecord.id);
             System.debug(
                 '旧owner名1' +
@@ -134,13 +137,22 @@ public with sharing class TerritoryTriggerHandle {
             if (relateAccList != null) {
                 for (Account relateAcc : relateAccList) {
                     System.debug('旧owner名2' + relateAcc.Owner.Name);
-                    System.debug('新owner名' + newRecord.Account_Owner__c);
+                    System.debug('新owner名' + newRecord.Account_Owner__r.Name);
                     relateAcc.OwnerId = newRecord.Account_Owner__c;
                     accToUpdate.add(relateAcc);
                 }
             }
         }
-        system.debug(accToUpdate);
         update accToUpdate;
+
+        List<Account> afterUpAccs = [
+            SELECT Owner.Name
+            FROM account
+            WHERE id IN :accToUpdate
+        ];
+
+        for (Account acc : afterUpAccs) {
+            system.debug('更新后的acc owner' + acc.Owner.Name);
+        }
     }
 }

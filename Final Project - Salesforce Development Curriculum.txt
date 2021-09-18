@@ -1,0 +1,184 @@
+﻿Final Project - Salesforce Development Curriculum
+15 Week Salesforce Development Curriculum: bit.ly/go-apex
+Developed by David Liu (dvdkliu@gmail.com)
+
+
+This project will challenge your Salesforce development skills using a real-world coding scenario. All requirements can be met using the concepts learned in the 15 Week Salesforce Development Curriculum, however, don’t be afraid to ask Google for some help too! 
+
+
+Students who successfully complete this project will have the confidence to know they can solve real-world coding projects and they should have no hesitation applying for Salesforce development jobs. 
+
+
+NOTE: This project will be a challenge!
+
+
+Instructions:
+
+
+* Build your solution in a free Salesforce developer org
+* Use as many declarative tools as you’d like
+
+
+Grade Criteria:
+
+
+* A: Excellent. 
+   * Uses coding best practices
+   * Fully functional code that covers most if not all edge cases
+   * Test classes cover sufficient positive and negative scenarios
+   * Code has a logical, understandable flow
+   * Good use of comments
+* B: Good. 
+   * Working code that may have non-critical errors
+   * Some edge cases may not be properly accounted for
+   * Code may be more complex than necessary
+   * Suboptimal use of classes
+* C: Okay. 
+   * Some requirements are not met satisfactorily
+   * Code may not be sufficiently bulkified
+* D: Broken.
+   * The code base has fundamental flaws
+
+
+Scenario - Custom Sales Territory Management
+
+
+Firebolt Motors Inc. is experiencing exponential sales growth after releasing their hit Model F solar powered sports car. 
+
+
+They employ a Sales team that sells vehicles to auto dealers across the United States. Each sales representative has a territory of one or more zip codes. Sales reps own the relationship with all auto dealers in their zip code territories.
+
+
+Firebolt Motors Inc. currently uses Salesforce to track their sales activities, including:
+* Accounts: Each account represents an automobile dealer.
+* Opportunities: A sale of vehicles to an automobile dealer.
+* Contacts: Automobile dealer employees.
+
+
+The Sales Operations team uses a combination of Salesforce and spreadsheets to manage each sales rep’s territory. They are manually setting the Account Owner field to the sales rep’s User record when the Account’s Zip Code belongs to the sales rep. Currently, a list of zip codes and their sales rep is stored in spreadsheet that looks like this:
+
+
+Zip Code
+	Sales Representative
+	91000
+	Blake
+	91001
+	Blake
+	91002
+	Blake
+	91002
+	Jacqueline
+	91010
+	Jacqueline
+	91020
+	Jacqueline
+	92010
+	Denise
+	92020
+	Aaron
+	
+
+Since Firebolt Motors Inc.’s sales team has tripled in size in the past year, the Sales Operations team is having trouble keeping up with all the sales territory changes. This process must be automated!
+
+
+Requirements 
+
+
+Requirement #1: Recreate the Zip Code spreadsheet as a custom Territory object. The custom object should have the following custom fields:
+
+
+Field Name
+	Field Type
+	Description
+	Zip Code
+	Text 
+	The standard name field. Each record will be named after its specific zip code.
+	Owner
+	Lookup (User)
+	The standard owner field. The sales rep assigned to this territory
+	
+
+Note: All fields should have field history tracking turned on.
+
+
+Requirement #2: When an Account’s BillingPostalCode (aka Zip Code), is changed, 
+1. Change the Account Owner to the sales representative assigned to the new zip code
+2. Change the Owner field of all the Account’s Contacts to the same sales rep 
+3. Change the Owner field of all the Account’s Open Opportunities to the same sales rep
+
+
+Note: 
+* The logic should run only when the Account’s zip code is changed or populated for the first time
+* If no matching Territories are found, do nothing 
+
+
+Requirement #3: Multiple sales representatives can be assigned to the same zip code territory. If this is the case, use a random function to select one of the assigned sales representatives.
+
+
+Requirement #4: Three sales representatives at most can be assigned to a single zip code. Display an error if a user attempts to associate another sales representative to a zip code.
+
+
+Requirement #5: Create an Assignment History custom object with the following fields:
+
+
+Field Name
+	Field Type
+	Description
+	Previous Owner
+	Lookup (User)
+	The prior sales rep assigned to this Account
+	New Owner
+	Lookup (User)
+	The new sales rep assigned to this Account
+	Previous Territory
+	Lookup (Territory__c)
+	The matching Territory__c record for the prior zip code
+	New Territory
+	Lookup (Territory__c)
+	The matching Territory__c record for the new zip code
+	Account
+	Master-Detail (Account)
+	The related Account record
+	Changed By
+	Lookup (User)
+	The user who changed the BillingPostalCode
+	
+
+Requirement #6: Create an Assignment_History__c record whenever an Account’s BillingPostalCode is changed or populated for the first time. All fields should be populated.
+
+
+Requirement #7: If a Territory__c record’s sales representative is changed (and only when it is changed), repeat Requirement #2’s logic for all Accounts associated with the Territory.
+
+
+Requirement #8: At least 90% test code coverage.
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+Bonus Challenge #1: Allow wildcard characters in Territory__c zip codes. For example, 9980* would cover 99801, 99802, 99803, …, etc.
+
+
+Bonus Challenge #2: When an account owner is changed, send an email to both the previous and the new owner notifying them of the change. 
+
+
+Bonus Challenge #3: Instead of randomly assigning sales reps in Requirement #3, assign records evenly across all associated sales reps. 
+
+
+Bonus Challenge #4: Every day at midnight, check that all accounts are assigned to the proper owner. All accounts that do not belong to the right owner should be fixed (including the relevant contacts and opportunities).
+
+
+Bonus Challenge #5: When there are multiple sales representatives in a single zip code (Requirement #3), assign accounts to each representative evenly, instead of randomly. 
+
+
+
+
+________________
+
+
+
+
+Change Log:
+
+
+March 3rd, 2019: Added bonus challenge #5

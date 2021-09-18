@@ -5,15 +5,16 @@ trigger TerritoryTrigger on Territory__c(
     after update
 ) {
     if (Trigger.isBefore) {
+        //isUpdate用于当同一zipcode超过3个时accOwner的时候 如果是更新的话把ownersize变成4用于更新
         Boolean isUpdate;
         if (Trigger.isInsert) {
             System.debug('TerritoryTriggerHandle excute');
             isUpdate = false;
-            TerritoryTriggerHandle.territoryHandle(Trigger.new, isUpdate);
+            TerritoryTriggerHandle.accOwnerLimitHandle(Trigger.new, isUpdate);
         }
         if (Trigger.isUpdate) {
             isUpdate = true;
-            TerritoryTriggerHandle.territoryHandle(Trigger.new, isUpdate);
+            TerritoryTriggerHandle.accOwnerLimitHandle(Trigger.new, isUpdate);
         }
     }
 

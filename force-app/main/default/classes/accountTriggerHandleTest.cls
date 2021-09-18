@@ -47,14 +47,19 @@ public with sharing class accountTriggerHandleTest {
         for (Account acc : accrList) {
             integer accName = integer.valueof(acc.name.substring(4));
             if (accName <= 50) {
+                //Blake
                 acc.BillingPostalCode = '91000';
-            } else if (accName > 50 && accName <= 80) {
-                acc.BillingPostalCode = '91001';
-            } else if (accName > 80 && accName <= 100) {
+            } else if (accName > 50 && accName <= 90) {
+                //Integration User test user Aaron
+                acc.BillingPostalCode = '91002';
+            } else if (accName > 90 && accName <= 100) {
+                //Jacqueline
                 acc.BillingPostalCode = '91010';
             } else if (accName > 100 && accName <= 150) {
+                // Jacqueline
                 acc.BillingPostalCode = '92010';
             } else {
+                //Aaron
                 acc.BillingPostalCode = '92020';
             }
         }
@@ -62,6 +67,13 @@ public with sharing class accountTriggerHandleTest {
 
         List<String> accNameList = new List<String>();
         accNameList.add('test50');
+        accNameList.add('test80');
+        accNameList.add('test81');
+        accNameList.add('test82');
+        accNameList.add('test83');
+        accNameList.add('test84');
+        accNameList.add('test85');
+        accNameList.add('test86');
         accNameList.add('test100');
         accNameList.add('test150');
         accNameList.add('test199');
@@ -75,22 +87,61 @@ public with sharing class accountTriggerHandleTest {
             FROM Account
             WHERE Name IN :accNameList
         ];
+        Map<String, Account> accNameWithAccMap = new Map<String, Account>();
+
+        for (Account accR : accResult) {
+            accNameWithAccMap.put(accR.Name, accR);
+        }
+
         System.debug(accResult.size());
 
-        List<String> userName = new List<String>();
-        userName.add('Blake');
-        userName.add('Jacqueline');
-        userName.add('Denise');
-        userName.add('Aaron');
+        System.assertEquals(
+            'Blake',
+            accNameWithAccMap.get('test50').Owner.Name
+        );
+        System.assertEquals(
+            'Aaron',
+            accNameWithAccMap.get('test199').Contacts[0].Owner.Name
+        );
 
-        for (Integer i = 0; i < 4; i++) {
-            String uName = userName[i];
-            Account accRe = accResult[i];
-            Contact contRe = accResult[i].contacts[0];
-            Opportunity oppoRe = accResult[i].Opportunities[0];
-            System.assertEquals(uName, contRe.Owner.Name);
-            System.assertEquals(uName, accRe.Owner.Name);
-            System.assertEquals(uName, oppoRe.Owner.Name);
+        for (Integer i = 1; i < 8; i++) {
+            String accName = accNameList[i];
+            System.debug(
+                '随机分配名称：' +
+                accNameWithAccMap.get(accNameList[i])
+                    .Opportunities[0]
+                    .Owner.Name
+            );
         }
+
+        Account testAcc1 = [
+            SELECT BillingPostalCode
+            FROM Account
+            WHERE Name = 'test199'
+        ];
+        System.debug('test199:' + testAcc1);
+        testAcc1.BillingPostalCode = '91010';
+        update testAcc1;
+
+        Assignment_History__c testAh = [
+            SELECT
+                Previous_Owner__r.Name,
+                New_Owner__r.Name,
+                Previous_Territory__c,
+                New_Territory__c,
+                Changed_By__c,
+                Account__c
+            FROM Assignment_History__c
+            WHERE Account__c = :testAcc1.id
+            ORDER BY CreatedDate DESC
+            LIMIT 1
+        ];
+
+        System.assertEquals('Jacqueline', testAh.New_Owner__r.Name);
+        System.assertEquals('Aaron', testAh.Previous_Owner__r.Name);
+        System.assertEquals('a015g00000XzTzsAAF', testAh.Previous_Territory__c);
+        System.assertEquals('a015g00000XzTzpAAF', testAh.New_Territory__c);
+
+        system.debug('Current User' + testAh.Changed_By__c);
     }
 }
